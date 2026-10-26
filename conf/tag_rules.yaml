@@ -1,0 +1,34 @@
+# axzq-profile-tagging 标签规则
+service:
+  name: axzq-profile-tagging
+  api: /openapi/v2/axzq-profile-tagging
+  owner: broker-dw
+  env: prod
+
+window:
+  trade_days: 30
+  dormant_days: [60, 180]
+  login_days: 7
+
+rules:
+  - tag: active_trader
+    min_trades: 1
+    min_login_per_day: 3
+    priority: 1
+  - tag: dormant_reactivate
+    min_idle_days: 60
+    max_idle_days: 180
+    require_login: true
+    priority: 2
+  - tag: wealth_migrate
+    cash_ratio_drop_pp: 15
+    non_money_fund_net_inflow: 1
+    priority: 2
+  - tag: margin_watch
+    maintenance_ratio_below: 180
+    priority: 1
+
+output:
+  sink: tag_center
+  mode: overwrite
+  batch_size: 2000
